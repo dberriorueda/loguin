@@ -1,15 +1,14 @@
-import { useState, UseEffect} from "react";
+import { useState, useEffect} from "react";
 import { View,Text } from "react-native";
 import { TextInput, Avatar, Button } from "react-native-paper";
 import { styles } from "../assets/estilos/alistyle";
 //firebase
-import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword} from 'firebase/auth'
+import {getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile} from 'firebase/auth'
 import {initializeApp} from 'firebase/app';
 import {firebaseConfig} from '../firebaseconfig';
-import {set} from 'react-hook-form';
 
 export default function Loguin({navigation}){
-    const [email, setEmmail] = useState('');
+    const [nombreusuario, setNombreUsuario] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [showPass,setShowpass] = useState(false)
@@ -18,25 +17,35 @@ export default function Loguin({navigation}){
     //Definir constantes para la autenticacion
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app)
+
+    const generalNombre = () =>{
+        const nombreUnico = "user" + Math.floor(Math.random() * 10000);
+        return nombreUnico;
+
+    };
     //Metodos para crear cuenta en firebase authentication y signIn
     const handleCreateAccount = ()=>{
-        createUserWithEmailAndPassword(auth,email,password)
-        .then((userCredential)=>{
+        const nombreUnico = generalNombre();
+        createUserWithEmailAndPassword(auth,nombreusuario + "@myapp.com",password)
+        .then(async (userCredential)=>{
             //console.log(userCredential.user.providerData)
+            await updateProfile(userCredential.user,{
+                displayName: nombreUnico,
+            });
             setMessageColor(true)
-            setMessage("Cuenta creada correctamente ...")
+            setMessage("Usuario registrado ...")
         })
-        .catch((errror)=>{
+        .catch((error)=>{
             //console.log(error.message)
-            setMessage("Error al crear la cuenta ... Intentelo de nuevo")
+            setMessage("Error al crear usuario ... Intentelo de nuevo")
             setMessageColor(false)
-        })
+        });
     }
     const handleSignIn = ()=>{
-        signInWithEmailAndPassword(auth, email, password)
+        signInWithEmailAndPassword(auth, nombreusuario + "@myapp.com", password)
         .then((userCredential)=>{
-            console.log("Conexion exitosa...");
-            navigation.navigate('Home', {email:email})
+            console.log("Usuario registrado...");
+            navigation.navigate('Home', {nombreusuario:nombreusuario})
         })
         .catch((error)=>{
             //console.log(error.message)
@@ -48,19 +57,19 @@ export default function Loguin({navigation}){
     return(
         <View style={styles.container}>
         <Avatar.Image
-            style={{ marginBottom: 20 }}
-            size={100}
-            source={require('../assets/imgs/imagen.jpg')} />
-        <View style={{ borderWidth: 2, borderColor: 'gray', borderRadius: 10, padding: 50 }}>
+            style={{ marginBottom: 20  }}
+            size={160}
+            source={require('../assets/imgs/alquiler1.jpg')} />
+        <View style={{ borderWidth: 10, borderColor: 'gray', borderRadius: 20, padding: 45 }}>
             <TextInput
                 autoFocus
-                label="Correo Electrónico"
-                left={<TextInput.Icon icon="email" />}
-                onChangeText={(email) => setEmmail(email)}
-                value={email}
+                label="Nombre de Usuario"
+                left={<TextInput.Icon icon="account" />}
+                onChangeText={(nombreusuario) => setNombreUsuario(nombreusuario)}
+                value={nombreusuario}
             />
             <TextInput
-                style={{ marginTop: 20 }}
+                style={{ marginTop: 10 }}
                 label="Contraseña"
                 secureTextEntry ={!showPass}
                 onChangeText={(password) => setPassword(password)}
@@ -68,7 +77,7 @@ export default function Loguin({navigation}){
                 right={<TextInput.Icon icon={showPass ? "eye" : "eye-off"} onPress={()=> setShowpass(!showPass)} />}
             />
             <Button
-                style={{ marginTop: 20, backgroundColor: 'orange' }}
+                style={{ marginTop: 10, backgroundColor: 'orange' }}
                 icon="login"
                 mode="outlined"
                 onPress={handleSignIn}
@@ -81,7 +90,7 @@ export default function Loguin({navigation}){
                 mode="outlined"
                 onPress={handleCreateAccount}
             >
-                Crear Cuenta
+                Crear Usuario
             </Button>
             <Text style={{ marginTop: 5, color: messageColor?'green': 'red'}}>{message}</Text>
         </View>
