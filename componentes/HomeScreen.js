@@ -15,7 +15,15 @@
         const {errors} = formState;
         const [message, setMessage] = useState('');
         const [messageColor, setMessageColor] = useState(true);
+        const {nombreusuario} = route.params;
 
+        const RegistrarCarro = () =>{
+            navigation.navigate('Registrar carro');
+        };
+
+        const AlquilarCarro= ()=>{
+            navigation.navigate('Alquilar carro');
+        };
 
         const onSubmit = async (data) => {
             const isValid = !errors.placa && !errors.brand && !errors.state;
@@ -45,6 +53,8 @@
     return (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
             <Text>Bienvenido {route.params.nombreusuario}</Text>
+            <Button title="Registrar Carro" onPress={RegistrarCarro}/>
+            <Button title="Alquilar Carro" onPress={AlquilarCarro}/>
             <Controller
                 control={control}
                 rules={{

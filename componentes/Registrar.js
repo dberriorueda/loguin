@@ -1,20 +1,19 @@
 import React from 'react';
 import { View, Text, Button } from 'react-native';
 
-const ChooseOptionsScreen = ({ navigation }) => {
+export default function Registrar({ navigation }) {
   return (
     <View>
-      <Text>Elige una opción:</Text>
+      <Text>¿Qué deseas hacer?</Text>
       <Button
-        title="Registrar Carros"
-        onPress={() => navigation.navigate('RegistroCarros')}
+        title="Registrar Carro"
+        onPress={() => navigation.navigate('RegistroCarros')} // Redirige a la pantalla de registro de carros
       />
       <Button
-        title="Alquilar"
-        onPress={() => navigation.navigate('Alquilar')}
+        title="Alquilar Carro"
+        onPress={() => navigation.navigate('Alquiler')} // Redirige a la pantalla de alquiler de carros
       />
     </View>
   );
-};
+}
 
-export default ChooseOptionsScreen;
