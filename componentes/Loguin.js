@@ -45,7 +45,7 @@ export default function Loguin({navigation}){
         signInWithEmailAndPassword(auth, nombreusuario + "@myapp.com", password)
         .then((userCredential)=>{
             console.log("Usuario registrado...");
-            navigation.navigate('Home', {nombreusuario:nombreusuario})
+            navigation.navigate('Opciones', {nombreusuario:nombreusuario})
         })
         .catch((error)=>{
             //console.log(error.message)

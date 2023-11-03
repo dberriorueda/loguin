@@ -1,8 +1,4 @@
 
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
-
 export const firebaseConfig = {
   apiKey: "AIzaSyDAj54W_O9HMrye3NRVOTfN6lKnTu0uabw",
   authDomain: "alquilercarros-351d0.firebaseapp.com",
@@ -13,11 +9,6 @@ export const firebaseConfig = {
   measurementId: "G-DS212MN4ZD"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-export { auth, db };
 
 
 

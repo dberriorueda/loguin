@@ -2,6 +2,7 @@
     import { useForm, Controller } from 'react-hook-form';
     import { TextInput, Button } from "react-native-paper";
     import { useState } from "react";
+    import { styles } from "../assets/estilos/alistyle";
     //firebase
     import {getFirestore, collection, addDoc} from 'firebase/firestore';
     import { initializeApp } from "firebase/app";
@@ -51,8 +52,8 @@
     };
 
     return (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <Text>Bienvenido {route.params.nombreusuario}</Text>
+        <View style={ styles.container}>
+            <Text style={styles.welcomeText}>Bienvenido {route.params.nombreusuario}</Text>
             <Button title="Registrar Carro" onPress={RegistrarCarro}/>
             <Button title="Alquilar Carro" onPress={AlquilarCarro}/>
             <Controller
@@ -74,10 +75,10 @@
                 )}
                 name="placa"
             />
-            {errors.placa?.type === "required" && <Text style={{ color: 'red' }}>Numero de placa es obligatorio.</Text>}
-            {errors.placa?.type === "maxlength" && <Text style={{ color: 'red' }}>La longitud debe ser de 20.</Text>}
-            {errors.placa?.type === "minlength" && <Text style={{ color: 'red' }}>La longitud mínima debe ser de 1.</Text>}
-            {errors.placa?.type === "pattern" && <Text style={{ color: 'red' }}>.</Text>}
+            {errors.placa?.type === "required" && <Text style={styles.errorText}>Numero de placa es obligatorio.</Text>}
+            {errors.placa?.type === "maxlength" && <Text style={styles.errorText}>La longitud debe ser de 20.</Text>}
+            {errors.placa?.type === "minlength" && <Text style={styles.errorText}>La longitud mínima debe ser de 1.</Text>}
+            {errors.placa?.type === "pattern" && <Text style={styles.errorText}>.</Text>}
 
             <Controller
                 control={control}
@@ -99,10 +100,10 @@
                 )}
                 name="brand"
                 />
-                {errors.brand?.type === "required" && <Text style={{ color: 'red' }}>Escribe la marca.</Text>}
-                {errors.brand?.type === "maxLength" && <Text style={{ color: 'red' }}>La longitud debe ser de 10.</Text>}
-                {errors.brand?.type === "minLength" && <Text style={{ color: 'red' }}>La longitud mínima debe ser de 1</Text>}
-                {errors.brand?.type === "pattern" && <Text style={{ color: 'red' }}>.</Text>}
+                {errors.brand?.type === "required" && <Text style={styles.errorText}>Escribe la marca.</Text>}
+                {errors.brand?.type === "maxLength" && <Text style={styles.errorText}>La longitud debe ser de 10.</Text>}
+                {errors.brand?.type === "minLength" && <Text style={styles.errorText}>La longitud mínima debe ser de 1</Text>}
+                {errors.brand?.type === "pattern" && <Text style={styles.errorText}>.</Text>}
 
                 <Controller
                     control={control}
@@ -124,10 +125,10 @@
                     )}
                     name="state"
                 />
-                {errors.state?.type === "required" && <Text style={{ color: 'red' }}>Escribe el estado del carro.</Text>}
-                {errors.state?.type === "maxLength" && <Text style={{ color: 'red' }}>La longitud debe ser de 10.</Text>}
-                {errors.state?.type === "minLength" && <Text style={{ color: 'red' }}>La longitud mínima debe ser de 1</Text>}
-                {errors.state?.type === "pattern" && <Text style={{ color: 'red' }}>.</Text>}
+                {errors.state?.type === "required" && <Text style={styles.errorText}>Escribe el estado del carro.</Text>}
+                {errors.state?.type === "maxLength" && <Text style={styles.errorText}>La longitud debe ser de 10.</Text>}
+                {errors.state?.type === "minLength" && <Text style={styles.errorText}>La longitud mínima debe ser de 1</Text>}
+                {errors.state?.type === "pattern" && <Text style={styles.errorText}>.</Text>}
 
                 
 
