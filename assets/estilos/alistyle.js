@@ -12,13 +12,22 @@ const styles = StyleSheet.create({
       fontWeight:'bold',
       marginBottom:10,
     },
-    input:{
-      fontFamily:'initial',
-      marginBottom:10,
+    optionContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginVertical: 10,
+      backgroundColor: 'blue',
+      padding: 20,
+      width: 200,
+      borderRadius: 15,
     },
-    errorText: {
-      color:'red',
-      marginBottom:10,
-    }
+    optionIcon: {
+      fontSize: 24,
+      marginRight: 10,
+    },
+    optionText: {
+      fontSize: 16,
+    },
   });
   export {styles}

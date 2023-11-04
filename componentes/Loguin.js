@@ -85,7 +85,7 @@ export default function Loguin({navigation}){
                 Iniciar Sesión
             </Button>
             <Button
-                style={{ marginTop: 20, backgroundColor: 'yellow' }}
+                style={{ marginTop: 10, backgroundColor: 'yellow' }}
                 icon="account"
                 mode="outlined"
                 onPress={handleCreateAccount}
