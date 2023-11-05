@@ -7,6 +7,13 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       justifyContent: 'center',
     },
+    title: {
+      fontSize:20,
+      marginBottom: 20,
+    },
+    errorText: {
+      color: 'red'
+    },
     welcomeText:{
       fontSize:18,
       fontWeight:'bold',

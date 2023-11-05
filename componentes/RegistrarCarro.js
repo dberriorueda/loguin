@@ -1,4 +1,5 @@
-    import { View, Text,} from "react-native";
+    import React from "react";
+    import { View, Text, ScrollView, StyleSheet, FlatList} from "react-native";
     import { useForm, Controller } from 'react-hook-form';
     import { TextInput, Button } from "react-native-paper";
     import { useState } from "react";
@@ -15,10 +16,11 @@
     export default function RegistroCarros({ route}){
         const {control, handleSubmit,formState} = useForm();
         const {errors} = formState;
+        const [registrosGuardados, setRegistrosGuardados] = useState([])
+        const [message, setMessage] = useState('');
         if (route && route.params && route.params.nombreusuario) {
             const { nombreusuario } = route.params
             const navigation = useNavigation()
-            const [message, setMessage] = useState('');
             const [messageColor, setMessageColor] = useState(true);
         }else {
             console.log('Los parametros no se pasaron correctamente.')
@@ -26,36 +28,24 @@
         const onSubmit = async (data) => {
             const isValid = !errors.placa && !errors.brand && !errors.state;
             if(isValid) {
-                const carroscollection = collection(db, 'carros');
-
                 const nuevoCarro = {
                     placa: data.placa,
                     brand: data.brand,
                     state: data.state,
                 };
-
-                try{
-                await addDoc(carroscollection, nuevoCarro);
-                setMessageColor(true);
-                setMessage('Carro guardado correctamente');
-                navigation.navigate('RegistroCarros')
-            }catch (error){
-                setMessageColor(false);
-                setMessage('Error al guardar el carro. Intentelo de nuevo.');
-            }
+                setRegistrosGuardados([...registrosGuardados, nuevoCarro])
+                setMessageColor(true)
+                setMessage('Registro exitoso')
         }else {
-            setMessageColor(false);
-            setMessage('Verifica los campos del formulario');
-        }
-        const handleBack = () => {
-            navigation.goBack()
+            setMessageColor(false)
+            setMessage('Verifique los datos del formulario. ')
         }
     
     };
 
     return (
-        <View>
-            <Text>Registro de Carros</Text>
+        <ScrollView contentContainerStyle={styles.container}>
+            <Text style={styles.title}>Registro de Carros</Text>
             <Controller
                 control={control}
                 render={({ field: {onChange, onBlur, value}}) => (
@@ -73,13 +63,13 @@
                 required:true,
                 maxLength: 20,
                 minlength: 1,
-                pattern: /^[A-ZÑa-zñáéíóúÁÉÍÓÚ'°0-9 ]+$/,
+                pattern: /^[A-ZÑa-zñáéíóúÁÉÍÓÚ'°0-9 -]+$/,
             }}
             />
             {errors.placa?.type === "required" && <Text style={styles.errorText}>Numero de placa es obligatorio.</Text>}
             {errors.placa?.type === "maxlength" && <Text style={styles.errorText}>La longitud debe ser de 20.</Text>}
             {errors.placa?.type === "minlength" && <Text style={styles.errorText}>La longitud mínima debe ser de 1.</Text>}
-            {errors.placa?.type === "pattern" && <Text style={styles.errorText}>.</Text>}
+            {errors.placa?.type === "pattern" && <Text style={styles.errorText}></Text>}
 
             <Controller
                 control={control}
@@ -138,13 +128,21 @@
                 >
                     Guardar
                 </Button>
-                <Button
-                    style={{ marginTop: 20}}
-                    mode="outlined"
-                    onPress={handleBack}
-                >
-                    Volver a la Pantalla anterior
-                </Button>
-            </View>
+                {message && (
+                    <Text style={{ color: messageColor ? 'green' : 'red'}}>{message}</Text>
+                )}
+                <Text>Registros Guardados</Text>
+                <FlatList
+                    data={registrosGuardados}
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({ item}) => (
+                        <View>
+                            <Text>placa: {item.placa}</Text>
+                            <Text>marca: {item.brand}</Text>
+                            <Text>estado: {item.state}</Text>
+                        </View>    
+                    )}
+                />
+            </ScrollView>
         );
     }    
