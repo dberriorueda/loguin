@@ -4,7 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { TextInput, Button } from "react-native-paper";
 import { useState } from "react";
 import { styles } from "../assets/estilos/alistyle";
-
+import DateTimePicker from "react-native-modal-datetime-picker";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "../firebaseconfig";
@@ -17,6 +17,8 @@ export default function AlquilarCarro({ route }) {
     const { errors} = formState
     const [message, setMessage] = useState('')
     const [messageColor, setMessageColor] = useState(true)
+    const [horavisible, setHoravisible] = useState(false)
+    const [selectedDate, setSelecteDate] = useState(null)
 
     const onSubmit = async (data) => {
         const isValid = !errors.numeroAlquiler && !errors.nombreUsuario && !errors.numeroPlaca && !errors.fechaAlquiler
@@ -27,9 +29,8 @@ export default function AlquilarCarro({ route }) {
                 numeroAlquiler: data.nuevoAlquiler,
                 nombreUsuario: data.nombreUsuario,
                 numeroPlaca: data.numeroPlaca,
-                fechaAlquiler: data.fechaAlquiler,
+                fechaAlquiler: selectedDate,
             }
-
             try {
                 const docRef = await addDoc (alquilerCollection, nuevoAlquiler)
                 setMessageColor(true)
@@ -42,6 +43,17 @@ export default function AlquilarCarro({ route }) {
             setMessageColor(false)
             setMessage('Verifique los datos del formulario')
         }
+    }
+    //Funcion para mostrar fecha
+    const mostrarFecha = () => {
+        setHoravisible(true)
+    }
+    const ocultarFecha = () => {
+        setHoravisible(false)
+    }
+    const confirmarFecha = (Date) => {
+        setSelecteDate(Date)
+        ocultarFecha()
     }
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -91,30 +103,24 @@ export default function AlquilarCarro({ route }) {
                 required: true
             }}
             />
-             <Controller
-            control={control}
-            render={({ field: {onChange, onBlur, value}}) => (
-                <TextInput
-                    label= "Fecha de alquiler"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                />
-            )}
-            name="fechaAlquiler"
-            rules={{
-                required: true
-            }}
+            <Button title="Seleccionar Fecha" onPress={mostrarFecha}/>
+            <TextInput
+                label="Fecha de alquiler"
+                value={selectedDate ? selectedDate.toDateString() : "Seleccionar fecha"}
+                onTouchStart={mostrarFecha}
+            />
+            <DateTimePicker
+                isVisible={horavisible}
+                mode="date"
+                display="calendar"
+                onConfirm={confirmarFecha}
+                onCancel={ocultarFecha}
             />
 
             <Button
-                style={{ marginTop: 20, backgroundColor: 'red'}}
-                icon="content-save"
-                mode="outlined"
+                title="Alquilar"
                 onPress={handleSubmit(onSubmit)}
-            >
-                Alquilar
-            </Button>
+            />
             {message && (
                 <Text style={{ color: messageColor ? 'green' : 'red'}}>{message}</Text>
             )}
