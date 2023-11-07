@@ -1,10 +1,10 @@
 import React from "react";
-import { View, Text, ScrollView, StyleSheet, FlatList} from "react-native";
+import { View, Text, ScrollView, StyleSheet, FlatList, Platform, Touchable} from "react-native";
 import { useForm, Controller } from 'react-hook-form';
-import { TextInput, Button } from "react-native-paper";
+import { TextInput, Button, TouchableRipple } from "react-native-paper";
 import { useState } from "react";
 import { styles } from "../assets/estilos/alistyle";
-import DateTimePicker from "react-native-modal-datetime-picker";
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "../firebaseconfig";
@@ -17,11 +17,23 @@ export default function AlquilarCarro({ route }) {
     const { errors} = formState
     const [message, setMessage] = useState('')
     const [messageColor, setMessageColor] = useState(true)
-    const [horavisible, setHoravisible] = useState(false)
-    const [selectedDate, setSelecteDate] = useState(null)
+    const [selectedDate, setSelectedDate] = useState(null)
+    const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+
+     //Funcion para mostrar fecha
+     const mostrarFecha = () => {
+        setDatePickerVisible(true)
+    }
+    const ocultarFecha = () => {
+        setDatePickerVisible(false)
+    }
+    const confirmarFecha = (date) => {
+        setSelectedDate(date)
+        ocultarFecha()
+    }
 
     const onSubmit = async (data) => {
-        const isValid = !errors.numeroAlquiler && !errors.nombreUsuario && !errors.numeroPlaca && !errors.fechaAlquiler
+        const isValid = !errors.numeroAlquiler && !errors.nombreUsuario && !errors.numeroPlaca && selectedDate
         if (isValid) {
             //Crear registro de alquiler
             const alquilerCollection = collection(db, 'alquileres')
@@ -30,9 +42,9 @@ export default function AlquilarCarro({ route }) {
                 nombreUsuario: data.nombreUsuario,
                 numeroPlaca: data.numeroPlaca,
                 fechaAlquiler: selectedDate,
-            }
+            }     
             try {
-                const docRef = await addDoc (alquilerCollection, nuevoAlquiler)
+                await addDoc(alquilerCollection, nuevoAlquiler)
                 setMessageColor(true)
                 setMessage('Alquiler exitoso')
             }catch (error) {
@@ -43,17 +55,6 @@ export default function AlquilarCarro({ route }) {
             setMessageColor(false)
             setMessage('Verifique los datos del formulario')
         }
-    }
-    //Funcion para mostrar fecha
-    const mostrarFecha = () => {
-        setHoravisible(true)
-    }
-    const ocultarFecha = () => {
-        setHoravisible(false)
-    }
-    const confirmarFecha = (Date) => {
-        setSelecteDate(Date)
-        ocultarFecha()
     }
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -103,26 +104,31 @@ export default function AlquilarCarro({ route }) {
                 required: true
             }}
             />
-            <Button title="Seleccionar Fecha" onPress={mostrarFecha}/>
-            <TextInput
-                label="Fecha de alquiler"
-                value={selectedDate ? selectedDate.toDateString() : "Seleccionar fecha"}
-                onTouchStart={mostrarFecha}
-            />
-            <DateTimePicker
-                isVisible={horavisible}
-                mode="date"
-                display="calendar"
-                onConfirm={confirmarFecha}
-                onCancel={ocultarFecha}
-            />
-
+            <View style={{ marginTop: 20}}>
+                <Text>Seleccione una fecha</Text>
+                <TouchableRipple onPress={mostrarFecha}>
+                    <Text>
+                        {selectedDate ? selectedDate.toDateString(): 'Seleccionar fecha'}
+                    </Text>
+                </TouchableRipple>
+                <DateTimePickerModal
+                    isVisible={isDatePickerVisible}
+                    mode="date"
+                    onConfirm={confirmarFecha}
+                    onCancel={ocultarFecha}
+                />
+            </View>   
             <Button
-                title="Alquilar"
+                mode="contained"
+                style={{ marginTop: 20}}
                 onPress={handleSubmit(onSubmit)}
-            />
-            {message && (
-                <Text style={{ color: messageColor ? 'green' : 'red'}}>{message}</Text>
+                >
+                    Alquilar
+            </Button>
+                {message && (
+                    <Text style={{ color: messageColor ? 'green' : 'red', marginTop:20}}>
+                        {message}
+                    </Text>
             )}
         </ScrollView>
     )
