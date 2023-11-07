@@ -1,7 +1,8 @@
 import React from "react";
 import { View, Text, ScrollView, StyleSheet, FlatList, Platform, Touchable} from "react-native";
 import { useForm, Controller } from 'react-hook-form';
-import { TextInput, Button, TouchableRipple } from "react-native-paper";
+import { TextInput, Button, } from "react-native-paper";
+import { TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { styles } from "../assets/estilos/alistyle";
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -106,11 +107,11 @@ export default function AlquilarCarro({ route }) {
             />
             <View style={{ marginTop: 20}}>
                 <Text>Seleccione una fecha</Text>
-                <TouchableRipple onPress={mostrarFecha}>
+                <TouchableOpacity onPress={mostrarFecha}>
                     <Text>
                         {selectedDate ? selectedDate.toDateString(): 'Seleccionar fecha'}
                     </Text>
-                </TouchableRipple>
+                </TouchableOpacity>
                 <DateTimePickerModal
                     isVisible={isDatePickerVisible}
                     mode="date"
