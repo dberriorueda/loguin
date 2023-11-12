@@ -1,8 +1,7 @@
 import React from "react";
-import { View, Text, ScrollView, StyleSheet, FlatList, Platform, Touchable} from "react-native";
+import { View, Text, ScrollView, TouchableWithoutFeedback} from "react-native";
 import { useForm, Controller } from 'react-hook-form';
 import { TextInput, Button, } from "react-native-paper";
-import { TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { styles } from "../assets/estilos/alistyle";
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -59,78 +58,93 @@ export default function AlquilarCarro({ route }) {
     }
     return (
         <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.title}>Alquiler de Carro</Text>
+            <Text style={styles.title}>Alquiler de Carros</Text>
             <Controller
-            control={control}
-            render={({ field: {onChange, onBlur, value}}) => (
-                <TextInput
-                    label= "Numero de alquiler"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                />
-            )}
-            name="numeroAlquiler"
-            rules={{
-                required: true
-            }}
+                control={control}
+                render={({ field: {onChange, onBlur, value}}) => (
+                    <TextInput
+                        label= "Numero de alquiler"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        error={errors.numeroAlquiler ? true : false}
+                    />
+                )}
+                name="numeroAlquiler"
+                rules={{
+                    required: "Este campo es obligatorio"
+                }}
             />
              <Controller
-            control={control}
-            render={({ field: {onChange, onBlur, value}}) => (
-                <TextInput
-                    label= "Nombre de usuario"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                />
-            )}
-            name="nombreUsuario"
-            rules={{
-                required: true
-            }}
+                control={control}
+                render={({ field: {onChange, onBlur, value}}) => (
+                    <TextInput
+                        label= "Nombre de usuario"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        error={errors.nombreUsuario ? true : false}
+                    />
+                )}
+                name="nombreUsuario"
+                rules={{
+                    required: "Este campo es obligatorio"
+                }}
             />
              <Controller
-            control={control}
-            render={({ field: {onChange, onBlur, value}}) => (
-                <TextInput
-                    label= "Numero de placa"
-                    onBlur={onBlur}
-                    onChangeText={onChange}
-                    value={value}
-                />
-            )}
-            name="numeroPlaca"
-            rules={{
-                required: true
-            }}
+                control={control}
+                render={({ field: {onChange, onBlur, value}}) => (
+                    <TextInput
+                        label= "Numero de placa"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        error={errors.numeroPlaca ? true : false}
+                    />
+                )}
+                name="numeroPlaca"
+                rules={{
+                    required: "Este campo es obligatorio"
+                }}
             />
-            <View style={{ marginTop: 20}}>
-                <Text>Seleccione una fecha</Text>
-                <TouchableOpacity onPress={mostrarFecha}>
-                    <Text>
-                        {selectedDate ? selectedDate.toDateString(): 'Seleccionar fecha'}
-                    </Text>
-                </TouchableOpacity>
-                <DateTimePickerModal
-                    isVisible={isDatePickerVisible}
-                    mode="date"
-                    onConfirm={confirmarFecha}
-                    onCancel={ocultarFecha}
+
+            <TouchableWithoutFeedback onPress={mostrarFecha}>
+                <Controller
+                    control={control}
+                    render={({ field: {onChange, onBlur, value}}) => (
+                        <TextInput
+                            label="Fecha de alquiler"
+                            onBlur={onBlur}
+                            value={value ? value.toString() : ''}
+                            error={errors.fechaAlquiler ? true : false}
+                        />
+                    )}
+                    name="fechaAlquiler"
+                    rules={{
+                        required: "Este campo es obligatorio"
+                    }}
                 />
-            </View>   
+            </TouchableWithoutFeedback>
+
             <Button
                 mode="contained"
                 style={{ marginTop: 20}}
                 onPress={handleSubmit(onSubmit)}
-                >
-                    Alquilar
+            >
+                Alquilar
             </Button>
-                {message && (
-                    <Text style={{ color: messageColor ? 'green' : 'red', marginTop:20}}>
-                        {message}
-                    </Text>
+            {message && (
+                <Text style={{ color: messageColor ? 'green' : 'red', marginTop:20}}>
+                    {message}
+                </Text>
             )}
+
+            <DateTimePickerModal
+                isVisible={isDatePickerVisible}
+                mode="date"
+                onConfirm={confirmarFecha}
+                onCancel={ocultarFecha}
+            />
         </ScrollView>
     )
 }
