@@ -1,35 +1,36 @@
-import React from "react";
-import { View, Text, ScrollView, TouchableWithoutFeedback} from "react-native";
+import React, { useState} from "react";
+import { Text, ScrollView, Button} from "react-native";
 import { useForm, Controller } from 'react-hook-form';
-import { TextInput, Button, } from "react-native-paper";
-import { useState } from "react";
+import { TextInput, } from "react-native-paper";
 import { styles } from "../assets/estilos/alistyle";
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "../firebaseconfig";
+
+
+
 
 const firebaseApp = initializeApp(firebaseConfig)
 const db = getFirestore(firebaseApp)
 
 export default function AlquilarCarro({ route }) {
     const {control, handleSubmit, formState} = useForm()
-    const { errors} = formState
+    const {errors} = formState
     const [message, setMessage] = useState('')
     const [messageColor, setMessageColor] = useState(true)
-    const [selectedDate, setSelectedDate] = useState(null)
-    const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+    const [selectedDate, setSelectedDate] = useState('')
 
-     //Funcion para mostrar fecha
-     const mostrarFecha = () => {
-        setDatePickerVisible(true)
+    const showDatePicker = () => {
+        setDatePickerVisibility(true)
     }
-    const ocultarFecha = () => {
-        setDatePickerVisible(false)
+
+    const hideDatePicker = () => {
+        setDatePickerVisibility(false)
     }
-    const confirmarFecha = (date) => {
-        setSelectedDate(date)
-        ocultarFecha()
+
+    const handleConfirm = (date) => {
+        setSelectedDate(date.toISOString().split('T')[0])
+        hideDatePicker()
     }
 
     const onSubmit = async (data) => {
@@ -38,7 +39,7 @@ export default function AlquilarCarro({ route }) {
             //Crear registro de alquiler
             const alquilerCollection = collection(db, 'alquileres')
             const nuevoAlquiler = {
-                numeroAlquiler: data.nuevoAlquiler,
+                numeroAlquiler: data.numeroAlquiler,
                 nombreUsuario: data.nombreUsuario,
                 numeroPlaca: data.numeroPlaca,
                 fechaAlquiler: selectedDate,
@@ -48,6 +49,7 @@ export default function AlquilarCarro({ route }) {
                 setMessageColor(true)
                 setMessage('Alquiler exitoso')
             }catch (error) {
+                //console.log('Error al realizar el alquiler:', error)
                 setMessageColor(false)
                 setMessage('Error al realizar el alquiler')
             }
@@ -107,44 +109,34 @@ export default function AlquilarCarro({ route }) {
                     required: "Este campo es obligatorio"
                 }}
             />
-
-            <TouchableWithoutFeedback onPress={mostrarFecha}>
-                <Controller
-                    control={control}
-                    render={({ field: {onChange, onBlur, value}}) => (
-                        <TextInput
-                            label="Fecha de alquiler"
-                            onBlur={onBlur}
-                            value={value ? value.toString() : ''}
-                            error={errors.fechaAlquiler ? true : false}
-                        />
-                    )}
-                    name="fechaAlquiler"
-                    rules={{
-                        required: "Este campo es obligatorio"
-                    }}
-                />
-            </TouchableWithoutFeedback>
-
+            <Controller
+                control={control}
+                render={({ field: {onChange, onBlur, value}}) => (
+                    <TextInput
+                        label= "Fecha de alquiler"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+                        error={errors.fechaAlquiler ? true : false}
+                    />
+                )}
+                name="fechaalquiler"
+                rules={{
+                    required: "Este campo es obligatorio"
+                }}
+            />    
             <Button
                 mode="contained"
-                style={{ marginTop: 20}}
+                style={{ marginTop: 20, backgroundColor: 'blue'}}
                 onPress={handleSubmit(onSubmit)}
             >
                 Alquilar
             </Button>
             {message && (
-                <Text style={{ color: messageColor ? 'green' : 'red', marginTop:20}}>
+                <Text style={{ color: messageColor ? 'green' : 'red', marginTop:20, textAlign: 'center'}}>
                     {message}
                 </Text>
             )}
-
-            <DateTimePickerModal
-                isVisible={isDatePickerVisible}
-                mode="date"
-                onConfirm={confirmarFecha}
-                onCancel={ocultarFecha}
-            />
         </ScrollView>
     )
 }
