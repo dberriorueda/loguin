@@ -1,7 +1,7 @@
 import React, { useState} from "react";
-import { Text, ScrollView, Button} from "react-native";
+import { Text, ScrollView,} from "react-native";
 import { useForm, Controller } from 'react-hook-form';
-import { TextInput, } from "react-native-paper";
+import { TextInput, Button} from "react-native-paper";
 import { styles } from "../assets/estilos/alistyle";
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
@@ -19,19 +19,6 @@ export default function AlquilarCarro({ route }) {
     const [message, setMessage] = useState('')
     const [messageColor, setMessageColor] = useState(true)
     const [selectedDate, setSelectedDate] = useState('')
-
-    const showDatePicker = () => {
-        setDatePickerVisibility(true)
-    }
-
-    const hideDatePicker = () => {
-        setDatePickerVisibility(false)
-    }
-
-    const handleConfirm = (date) => {
-        setSelectedDate(date.toISOString().split('T')[0])
-        hideDatePicker()
-    }
 
     const onSubmit = async (data) => {
         const isValid = !errors.numeroAlquiler && !errors.nombreUsuario && !errors.numeroPlaca && selectedDate
@@ -69,15 +56,21 @@ export default function AlquilarCarro({ route }) {
                         onBlur={onBlur}
                         onChangeText={onChange}
                         value={value}
-                        error={errors.numeroAlquiler ? true : false}
                     />
                 )}
                 name="numeroAlquiler"
                 rules={{
-                    required: "Este campo es obligatorio"
+                    required: true,
+                    maxLength:20,
+                    minLength:1,
+                    pattern: /^[A-ZÑa-zñáéíóúÁÉÍÓÚ'°0-9 -]+$/,
                 }}
             />
-             <Controller
+            {errors.numeroAlquiler?.type === "required" && <Text style={styles.errorText}>Numero de alquiler es obligatorio.</Text>}
+            {errors.numeroAlquiler?.type === "maxLength" && <Text style={styles.errorText}>La longitud debe ser de 20.</Text>}
+            {errors.numeroAlquiler?.type === "minLength" && <Text style={styles.errorText}>La longitus minima es de 1.</Text>}
+            {errors.numeroAlquiler?.type === "pattern" && <Text style={styles.errorText}></Text>}
+            <Controller
                 control={control}
                 render={({ field: {onChange, onBlur, value}}) => (
                     <TextInput
@@ -85,15 +78,21 @@ export default function AlquilarCarro({ route }) {
                         onBlur={onBlur}
                         onChangeText={onChange}
                         value={value}
-                        error={errors.nombreUsuario ? true : false}
                     />
                 )}
                 name="nombreUsuario"
                 rules={{
-                    required: "Este campo es obligatorio"
+                    required: true,
+                    maxLength: 25,
+                    minLength:1,
+                    pattern: /^[A-ZÑa-zñáéíóúÁÉÍÓÚ'° ]+$/,
                 }}
             />
-             <Controller
+            {errors.nombreUsuario?.type === "required" && <Text style={styles.errorText}>El nombre de usuario es obligatorio.</Text>}
+            {errors.nombreUsuario?.type === "maxLength" && <Text style={styles.errorText}>La longitud debe ser de 25.</Text>}
+            {errors.nombreUsuario?.type === "minLength" && <Text style={styles.errorText}>La longitus minima es de 1.</Text>}
+            {errors.nombreUsuario?.type === "pattern" && <Text style={styles.errorText}></Text>}
+            <Controller
                 control={control}
                 render={({ field: {onChange, onBlur, value}}) => (
                     <TextInput
@@ -101,14 +100,21 @@ export default function AlquilarCarro({ route }) {
                         onBlur={onBlur}
                         onChangeText={onChange}
                         value={value}
-                        error={errors.numeroPlaca ? true : false}
                     />
                 )}
                 name="numeroPlaca"
                 rules={{
-                    required: "Este campo es obligatorio"
+                    required: true,
+                    maxLength: 20,
+                    minLength: 1,
+                    pattern: /^[A-ZÑa-zñáéíóúÁÉÍÓÚ'°0-9 -]+$/,
                 }}
             />
+            {errors.placa?.type === "required" && <Text style={styles.errorText}>Numero de placa es obligatorio.</Text>}
+            {errors.placa?.type === "maxlength" && <Text style={styles.errorText}>La longitud debe ser de 20.</Text>}
+            {errors.placa?.type === "minlength" && <Text style={styles.errorText}>La longitud mínima debe ser de 1.</Text>}
+            {errors.placa?.type === "pattern" && <Text style={styles.errorText}></Text>}
+
             <Controller
                 control={control}
                 render={({ field: {onChange, onBlur, value}}) => (
@@ -117,23 +123,30 @@ export default function AlquilarCarro({ route }) {
                         onBlur={onBlur}
                         onChangeText={onChange}
                         value={value}
-                        error={errors.fechaAlquiler ? true : false}
                     />
                 )}
                 name="fechaalquiler"
                 rules={{
-                    required: "Este campo es obligatorio"
+                    required: true,
+                    maxLength: 20,
+                    minLength:1,
+                    pattern: /^[A-ZÑa-zñáéíóúÁÉÍÓÚ'°0-9 -]+$/,
                 }}
-            />    
+            />
+            {errors.placa?.type === "required" && <Text style={styles.errorText}>La fecha es obligatorio.</Text>}
+            {errors.placa?.type === "maxlength" && <Text style={styles.errorText}>La longitud debe ser de 20.</Text>}
+            {errors.placa?.type === "minlength" && <Text style={styles.errorText}>La longitud mínima debe ser de 1.</Text>}
+            {errors.placa?.type === "pattern" && <Text style={styles.errorText}></Text>}
+
             <Button
+                style={{ marginTop: 20, backgroundColor: 'blue' }}
                 mode="contained"
-                style={{ marginTop: 20, backgroundColor: 'blue'}}
                 onPress={handleSubmit(onSubmit)}
             >
                 Alquilar
             </Button>
             {message && (
-                <Text style={{ color: messageColor ? 'green' : 'red', marginTop:20, textAlign: 'center'}}>
+                <Text style={{ color: messageColor ? 'green' : 'red'}}>
                     {message}
                 </Text>
             )}
