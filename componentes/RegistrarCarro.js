@@ -18,6 +18,9 @@
         const {errors} = formState;
         const [registrosGuardados, setRegistrosGuardados] = useState([])
         const [message, setMessage] = useState('');
+        const [ modoEdicion, setModoEdicion] = useState(false)
+        const [registroAEditar, setRegistroAEditar] = useState(null)
+
         if (route && route.params && route.params.nombreusuario) {
             const { nombreusuario } = route.params
             const navigation = useNavigation()
@@ -33,15 +36,31 @@
                     brand: data.brand,
                     state: data.state,
                 };
-                setRegistrosGuardados([...registrosGuardados, nuevoCarro])
-                setMessageColor(true)
-                setMessage('Registro exitoso')
+                if (modoEdicion && registroAEditar) {
+                    //Modo de edicion, actualizar el registro existente
+                    const nuevoRegistro = registrosGuardados.map((regstro) =>
+                        regstro === registroAEditar ? nuevoCarro : regstro
+                    )
+                    setRegistrosGuardados(nuevoRegistro)
+                    setModoEdicion(false)
+                    setRegistroAEditar(null)
+                    setMessageColor(true)
+                    setMessage('Modificacion exitosa')
+                }else {
+                    setRegistrosGuardados([...registrosGuardados, nuevoCarro])
+                    setMessageColor(true)
+                    setMessage('Registro exitoso')
+                }
         }else {
             setMessageColor(false)
             setMessage('Verifique los datos del formulario. ')
         }
     
     };
+    const handleModificar = (regstro) => {
+        control.setValues('placa', registro.placa)
+        control.setValue('brand', registro.brand)
+    }
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -128,6 +147,14 @@
                 >
                     Guardar
                 </Button>
+                <Button
+                    style={{ marginTop: 20, backgroundColor: 'yellow'}}
+                    icon="content-save"
+                    mode="outlined"
+                    onPress={handleSubmit(onSubmit)}
+                >
+                    Modificar
+                </Button>
                 {message && (
                     <Text style={{ color: messageColor ? 'green' : 'red'}}>{message}</Text>
                 )}
@@ -142,6 +169,8 @@
                             <Text>estado: {item.state}</Text>
                         </View>    
                     )}
+                />
+                <FlatList
                 />
             </ScrollView>
         );
