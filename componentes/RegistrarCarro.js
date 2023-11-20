@@ -1,33 +1,27 @@
+    //Importaciones necesarias
     import React from "react";
     import { View, Text, ScrollView, StyleSheet, FlatList} from "react-native";
     import { useForm, Controller } from 'react-hook-form';
     import { TextInput, Button } from "react-native-paper";
-    import { useState } from "react";
+    import { getFirestore, collection, addDoc} from 'firebase/firestore';
+    import { initializeApp } from "firebase/app";
     import { styles } from "../assets/estilos/alistyle";
     import { useNavigation } from "@react-navigation/native";
-    //firebase
-    import {getFirestore, collection, addDoc} from 'firebase/firestore';
-    import { initializeApp } from "firebase/app";
     import { firebaseConfig } from "../firebaseconfig";
 
     const firebaseApp = initializeApp(firebaseConfig);
     const db = getFirestore(firebaseApp)
 
     export default function RegistroCarros({ route}){
-        const {control, handleSubmit,formState} = useForm();
+        const {control, handleSubmit,formState, reset} = useForm();
         const {errors} = formState;
-        const [registrosGuardados, setRegistrosGuardados] = useState([])
-        const [message, setMessage] = useState('');
-        const [ modoEdicion, setModoEdicion] = useState(false)
-        const [registroAEditar, setRegistroAEditar] = useState(null)
+        const [registrosGuardados, setRegistrosGuardados] = React.useState([])
+        const [message, setMessage] = React.useState('');
+        const [modoEdicion, setModoEdicion] = React.useState(false)
+        const [registroAEditar, setRegistroAEditar] = React.useState(null)
+        const navigation = useNavigation()
+        const [messageColor, setMessageColor] = React.useState(true)
 
-        if (route && route.params && route.params.nombreusuario) {
-            const { nombreusuario } = route.params
-            const navigation = useNavigation()
-            const [messageColor, setMessageColor] = useState(true);
-        }else {
-            console.log('Los parametros no se pasaron correctamente.')
-        }
         const onSubmit = async (data) => {
             const isValid = !errors.placa && !errors.brand && !errors.state;
             if(isValid) {
@@ -47,6 +41,7 @@
                     setMessageColor(true)
                     setMessage('Modificacion exitosa')
                 }else {
+                    //Nuevo registro
                     setRegistrosGuardados([...registrosGuardados, nuevoCarro])
                     setMessageColor(true)
                     setMessage('Registro exitoso')
@@ -57,9 +52,20 @@
         }
     
     };
-    const handleModificar = (regstro) => {
-        control.setValues('placa', registro.placa)
-        control.setValue('brand', registro.brand)
+    const handleModificar = (registro) => {
+        if(registro) {
+            setRegistroAEditar(registro)
+            reset({
+                placa: registro.placa || '',
+                brand: registro.brand || '',
+                state: registro.state || '',
+            })
+            setModoEdicion(true)
+        }else {
+            setRegistroAEditar(null)
+            reset()
+            setModoEdicion(false)
+        }
     }
 
     return (
@@ -145,33 +151,20 @@
                     mode="outlined"
                     onPress={handleSubmit(onSubmit)}
                 >
-                    Guardar
-                </Button>
-                <Button
-                    style={{ marginTop: 20, backgroundColor: 'yellow'}}
-                    icon="content-save"
-                    mode="outlined"
-                    onPress={handleSubmit(onSubmit)}
-                >
-                    Modificar
+                    {modoEdicion ? 'Modificar' : 'Guardar'}
                 </Button>
                 {message && (
-                    <Text style={{ color: messageColor ? 'green' : 'red'}}>{message}</Text>
+                    <Text style={{ color: messageColor ? 'green': 'red'}}>{message}</Text>
                 )}
                 <Text>Registros Guardados</Text>
-                <FlatList
-                    data={registrosGuardados}
-                    keyExtractor={(item, index) => index.toString()}
-                    renderItem={({ item}) => (
-                        <View>
-                            <Text>placa: {item.placa}</Text>
-                            <Text>marca: {item.brand}</Text>
-                            <Text>estado: {item.state}</Text>
-                        </View>    
-                    )}
-                />
-                <FlatList
-                />
+                {registrosGuardados.map((item, index) =>(
+                    <View key={index}>
+                        <Text>placa: {item.placa}</Text>
+                        <Text>marca: {item.brand}</Text>
+                        <Text>estado: {item.state}</Text>
+                        <Button onPress={() => handleModificar(item)}>Modificar</Button>
+                    </View>
+                ))}
             </ScrollView>
         );
     }    
