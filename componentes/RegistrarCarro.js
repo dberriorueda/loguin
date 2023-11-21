@@ -1,72 +1,91 @@
-    //Importaciones necesarias
-    import React from "react";
-    import { View, Text, ScrollView, StyleSheet, FlatList} from "react-native";
-    import { useForm, Controller } from 'react-hook-form';
-    import { TextInput, Button } from "react-native-paper";
-    import { getFirestore, collection, addDoc} from 'firebase/firestore';
-    import { initializeApp } from "firebase/app";
-    import { styles } from "../assets/estilos/alistyle";
-    import { useNavigation } from "@react-navigation/native";
-    import { firebaseConfig } from "../firebaseconfig";
+import React, { useEffect, useState } from "react";
+import { View, Text, ScrollView } from "react-native";
+import { useForm, Controller } from 'react-hook-form';
+import { TextInput, Button } from "react-native-paper";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from "@react-navigation/native";
+import { ServicioLocal } from "../componentes/ServicioLocal";
+import { styles } from "../assets/estilos/alistyle";
 
-    const firebaseApp = initializeApp(firebaseConfig);
-    const db = getFirestore(firebaseApp)
+export default function RegistroCarros() {
+    const { control, handleSubmit, formState, reset } = useForm()
+    const { errors } = formState;
+    const [registrosGuardados, setRegistrosGuardados] = useState([])
+    const [message, setMessage] = useState('')
+    const [modoEdicion, setModoEdicion] = useState(false)
+    const [registroAEditar, setRegistroAEditar] = useState(null)
+    const navigation = useNavigation()
+    const [messageColor, setMessageColor] = useState(true)
+    const [isloading, setIsloading] = useState(true)
 
-    export default function RegistroCarros({ route}){
-        const {control, handleSubmit,formState, reset} = useForm();
-        const {errors} = formState;
-        const [registrosGuardados, setRegistrosGuardados] = React.useState([])
-        const [message, setMessage] = React.useState('');
-        const [modoEdicion, setModoEdicion] = React.useState(false)
-        const [registroAEditar, setRegistroAEditar] = React.useState(null)
-        const navigation = useNavigation()
-        const [messageColor, setMessageColor] = React.useState(true)
-
-        const onSubmit = async (data) => {
-            const isValid = !errors.placa && !errors.brand && !errors.state;
-            if(isValid) {
-                const nuevoCarro = {
-                    placa: data.placa,
-                    brand: data.brand,
-                    state: data.state,
-                };
-                if (modoEdicion && registroAEditar) {
-                    //Modo de edicion, actualizar el registro existente
-                    const nuevoRegistro = registrosGuardados.map((regstro) =>
-                        regstro === registroAEditar ? nuevoCarro : regstro
-                    )
-                    setRegistrosGuardados(nuevoRegistro)
-                    setModoEdicion(false)
-                    setRegistroAEditar(null)
-                    setMessageColor(true)
-                    setMessage('Modificacion exitosa')
-                }else {
-                    //Nuevo registro
-                    setRegistrosGuardados([...registrosGuardados, nuevoCarro])
-                    setMessageColor(true)
-                    setMessage('Registro exitoso')
-                }
-        }else {
-            setMessageColor(false)
-            setMessage('Verifique los datos del formulario. ')
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [registros, carros] = await Promise.all([
+                    AsyncStorage.getItem('registrosGuardados'),
+                    ServicioLocal.obtenerCarrosDisponibles()
+                ])
+                setRegistrosGuardados(JSON.parse(registros) || [])
+                setCarrosDisponibles(carros)
+            } catch (error) {
+                console.error("Error al obtener registros guardados", error.message)
+            } finally{
+                setIsloading(false)
+            }
         }
-    
+        fetchData()
+    }, [])
+
+    const onSubmit = async (data) => {
+        const isValid = !errors.placa && !errors.brand && !errors.state;
+        if (isValid) {
+            const nuevoCarro = {
+                placa: data.placa,
+                brand: data.brand,
+                state: data.state,
+            };
+            if (modoEdicion && registroAEditar) {
+                // Modo de edición, actualizar el registro existente
+                const nuevoRegistro = registrosGuardados.map((registro) =>
+                    registro === registroAEditar ? nuevoCarro : registro
+                );
+                setRegistrosGuardados(nuevoRegistro);
+                setModoEdicion(false);
+                setRegistroAEditar(null);
+                setMessageColor(true);
+                setMessage('Modificación exitosa');
+            } else {
+                // Nuevo registro
+                setRegistrosGuardados([...registrosGuardados, nuevoCarro]);
+                setMessageColor(true);
+                setMessage('Registro exitoso');
+            }
+
+            // Guardar en AsyncStorage
+            await AsyncStorage.setItem('registrosGuardados', JSON.stringify([...registrosGuardados, nuevoCarro]));
+            navigation.navigate('AlquilarCarro', {registrosGuardados})
+        } else {
+            setMessageColor(false);
+            setMessage('Verifique los datos del formulario.');
+        }
     };
+
     const handleModificar = (registro) => {
-        if(registro) {
-            setRegistroAEditar(registro)
+        if (registro) {
+            setRegistroAEditar(registro);
             reset({
                 placa: registro.placa || '',
                 brand: registro.brand || '',
                 state: registro.state || '',
-            })
-            setModoEdicion(true)
-        }else {
-            setRegistroAEditar(null)
-            reset()
-            setModoEdicion(false)
+            });
+            setModoEdicion(true);
+        } else {
+            setRegistroAEditar(null);
+            reset();
+            setModoEdicion(false);
         }
-    }
+    };
+
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
