@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Text, ScrollView } from "react-native";
-import { useForm, Controller, reset } from 'react-hook-form';
+import { useForm, Controller} from 'react-hook-form';
 import { TextInput, Button } from "react-native-paper";
 import { styles } from "../assets/estilos/alistyle";
 import { ServicioLocal } from "../componentes/ServicioLocal";
 
 export default function AlquilarCarro({ route }) {
-    const { control, handleSubmit, formState } = useForm()
+    const { control, handleSubmit, formState, reset } = useForm()
     const { errors } = formState
     const [isLoading, setIsLoading] = useState(true)
     const [message, setMessage] = useState('')
