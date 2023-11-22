@@ -4,7 +4,7 @@ export const ServicioLocal = {
     obtenerCarrosDisponibles: async () => {
         try {
             const carros = await ServicioLocal.obtenerTodosLosCarros();
-            return carros.filter(carro => carro.state === 'Disponible');
+            return carros.filter(carro => carro.state === 'disponible');
         } catch (error) {
             console.log("Error al obtener carros disponibles: ", error.message);
             return [];

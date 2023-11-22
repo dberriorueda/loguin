@@ -6,87 +6,87 @@ import { styles } from "../assets/estilos/alistyle";
 import { ServicioLocal } from "../componentes/ServicioLocal";
 
 export default function AlquilarCarro({ route }) {
-    const { control, handleSubmit, formState, reset } = useForm()
-    const { errors } = formState
-    const [isLoading, setIsLoading] = useState(true)
-    const [message, setMessage] = useState('')
-    const [messageColor, setMessageColor] = useState('')
-    const [carrosDisponibles, setCarrosDisponibles] = useState([])
-    const [ messageTimer, setMessageTimer] = useState(null)
+    const { control, handleSubmit, formState, reset } = useForm();
+    const { errors } = formState;
+    const [isLoading, setIsLoading] = useState(true);
+    const [message, setMessage] = useState('');
+    const [messageColor, setMessageColor] = useState('');
+    const [carrosDisponibles, setCarrosDisponibles] = useState([]);
+    const [messageTimer, setMessageTimer] = useState(null);
 
     useEffect(() => {
         const fetchCarrosDisponibles = async () => {
-            setIsLoading(true)
+            setIsLoading(true);
             try {
-                const carros = await ServicioLocal.obtenerCarrosDisponibles()
-                console.log('Carros disponibles:', carros)
-                setCarrosDisponibles(carros)
+                const carros = await ServicioLocal.obtenerCarrosDisponibles();
+                setCarrosDisponibles(carros);
             } catch (error) {
-                console.error('Error al obtener carros disponibles: ', error.message)
-            }finally {
-                setIsLoading(false)
+                console.error('Error al obtener carros disponibles: ', error.message);
+            } finally {
+                setIsLoading(false);
             }
-               
-        }
-        fetchCarrosDisponibles()
-        const timer = setTimeout(() => {
-            showMessage('', '')
-        }, 5000)
-        return () => clearTimeout(timer)
-    }, [route.params?.registrosGuardados])
+        };
 
-    const showMessage = (Text, color) => {
-        setMessage(Text)
-        setMessageColor(color)
+        fetchCarrosDisponibles();
+
         const timer = setTimeout(() => {
-            setMessage('')
-            setMessageColor('')
-        }, 5000)
-        setMessageTimer(timer)
-    }
+            showMessage('', '');
+        }, 5000);
+
+        return () => clearTimeout(timer);
+    }, [route.params?.registrosGuardados]);
+
+    const showMessage = (text, color) => {
+        setMessage(text);
+        setMessageColor(color);
+        const timer = setTimeout(() => {
+            setMessage('');
+            setMessageColor('');
+        }, 5000);
+        setMessageTimer(timer);
+    };
 
     const onSubmit = async (data) => {
         const isValid = !errors.numeroAlquiler && !errors.nombreUsuario && !errors.numeroPlaca && !errors.fechaAlquiler;
         if (isValid) {
             try {
-                setIsLoading(true)
-                const carroDisponible = await verificarDisponibilidad(data.numeroPlaca)
+                setIsLoading(true);
+                const carroDisponible = await verificarDisponibilidad(data.numeroPlaca);
                 if (carroDisponible) {
-                    await realizarAlquiler(data.numeroPlaca)
-                    showMessage('Alquiler exitoso', 'green')
-                    reset()
-                }else {
-                    showMessage('El carro no esta disponible para alquilar', 'red')
+                    await realizarAlquiler(data.numeroPlaca);
+                    showMessage('Alquiler exitoso', 'green');
+                    reset();
+                } else {
+                    showMessage('El carro no está disponible para alquilar', 'red');
                 }
             } catch (error) {
-                showMessage('Error al realizar el alquiler', 'red')
-                showMessage('Error al realizar el alquiler', error.message)
+                showMessage('Error al realizar el alquiler', error.message);
             } finally {
-                setIsLoading(false)
+                setIsLoading(false);
             }
         } else {
-            showMessage('Verifica los datos del formulario', 'red')
+            showMessage('Verifica los datos del formulario', 'red');
         }
     };
 
     const verificarDisponibilidad = async (numeroPlaca) => {
         try {
-            const carrosRegistrados = await ServicioLocal.obtenerCarrosDisponibles()
-            return carrosRegistrados.some((carro) => carro.placa === numeroPlaca && carro.state ==='Disponible')
+            const carrosRegistrados = await ServicioLocal.obtenerCarrosDisponibles();
+            return carrosRegistrados.some((carro) => carro.placa === numeroPlaca && carro.state === 'disponible');
         } catch (error) {
-            console.log('Error al verificar disponibilidad del carro: ', error.message)
-            return false
+            console.log('Error al verificar disponibilidad del carro: ', error.message);
+            return false;
         }
-    }
+    };
 
-    // Función para verificar el estado del carro
-    const realizarAlquiler= async (numeroPlaca) => {
+    const realizarAlquiler = async (numeroPlaca) => {
         try {
-            await ServicioLocal.actualizarEstadoCarro(numeroPlaca, 'No disponible')
-            const nuevosCarrosDisponibles = carrosDisponibles.filter((carro) =>carro.placa !== numeroPlaca)
-            setCarrosDisponibles(nuevosCarrosDisponibles)
+            await ServicioLocal.actualizarEstadoCarro(numeroPlaca, 'No disponible');
+            const nuevosCarrosDisponibles = carrosDisponibles.filter((carro) => carro.placa !== numeroPlaca);
+            setCarrosDisponibles(nuevosCarrosDisponibles);
+            showMessage('Exito al alquilar el carro', 'green')
         } catch (error) {
-            console.log('Error al actualizar el estado del carro: ', error.message)
+            console.log('Error al actualizar el estado del carro: ', error.message);
         }
     };
 
@@ -193,7 +193,7 @@ export default function AlquilarCarro({ route }) {
             ) : null}
             <Text>Carros disponibles:</Text>
             <ScrollView>
-                {carrosDisponibles.filter((carro) => carro.state === 'Disponible')
+                {carrosDisponibles.filter((carro) => carro.state === 'disponible')
                 .map((carro, index) => (
                     <Text key={index}>{carro.placa} - {carro.brand}</Text>
                 ))}

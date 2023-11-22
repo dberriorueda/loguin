@@ -11,6 +11,7 @@ export default function RegistroCarros() {
     const { control, handleSubmit, formState, reset } = useForm()
     const { errors } = formState;
     const [registrosGuardados, setRegistrosGuardados] = useState([])
+    const [carrosDisponibles, setCarrosDisponibles] = useState([]);
     const [message, setMessage] = useState('')
     const [modoEdicion, setModoEdicion] = useState(false)
     const [registroAEditar, setRegistroAEditar] = useState(null)
@@ -37,12 +38,12 @@ export default function RegistroCarros() {
     }, [])
 
     const onSubmit = async (data) => {
-        const isValid = !errors.placa && !errors.brand && !errors.state;
+        const isValid = !errors.numeroAlquiler && !errors.nombreUsuario && !errors.numeroPlaca && !errors.fechaAlquiler ;
         if (isValid) {
             const nuevoCarro = {
                 placa: data.placa,
                 brand: data.brand,
-                state: 'Disponible',
+                state: 'disponible',
             };
             if (modoEdicion && registroAEditar) {
                 // Modo de edición, actualizar el registro existente
@@ -63,7 +64,8 @@ export default function RegistroCarros() {
 
             // Guardar en AsyncStorage
             await AsyncStorage.setItem('registrosGuardados', JSON.stringify([...registrosGuardados, nuevoCarro]));
-            navigation.navigate('AlquilarCarro', {registrosGuardados})
+            reset();
+            //navigation.navigate('AlquilarCarro', {registrosGuardados})
         } else {
             setMessageColor(false);
             setMessage('Verifique los datos del formulario.');
@@ -85,6 +87,15 @@ export default function RegistroCarros() {
             setModoEdicion(false);
         }
     };
+    const eliminarRegistros = async () => {
+        try {
+            await AsyncStorage.clear()
+            setRegistrosGuardados([])
+            console.log('Registros eliminados')
+        } catch (error) {
+            console.error('Error al eliminar el registro: ', error.message)
+        }
+    }
 
 
     return (
@@ -171,6 +182,14 @@ export default function RegistroCarros() {
                     onPress={handleSubmit(onSubmit)}
                 >
                     {modoEdicion ? 'Modificar' : 'Guardar'}
+                </Button>
+                <Button
+                    style={{ marginTop: 20, backgroundColor: 'blue'}}
+                    icon="delete"
+                    mode="outlined"
+                    onPress={eliminarRegistros}
+                >
+                    Eliminar Registros
                 </Button>
                 {message && (
                     <Text style={{ color: messageColor ? 'green': 'red'}}>{message}</Text>
