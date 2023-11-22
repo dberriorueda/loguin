@@ -42,7 +42,7 @@ export default function RegistroCarros() {
             const nuevoCarro = {
                 placa: data.placa,
                 brand: data.brand,
-                state: data.state,
+                state: 'Disponible',
             };
             if (modoEdicion && registroAEditar) {
                 // Modo de edición, actualizar el registro existente
